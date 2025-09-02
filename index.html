@@ -8,6 +8,7 @@
       margin: 0;
       background: black;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
@@ -18,15 +19,22 @@
       font-family: monospace;
       white-space: pre;
       line-height: 1em;
-      font-size: 0.9vw; /* s'adapte à l'écran */
+      font-size: 0.9vw;
       text-align: center;
     }
     video, canvas {
       display: none;
     }
+    #startBtn {
+      font-size: 1.5rem;
+      padding: 10px 20px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
+  <button id="startBtn">Start Camera</button>
   <video id="video" autoplay playsinline></video>
   <canvas id="canvas"></canvas>
   <pre id="ascii"></pre>
@@ -36,6 +44,7 @@
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     const asciiEl = document.getElementById("ascii");
+    const startBtn = document.getElementById("startBtn");
 
     // Détection mobile
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -43,28 +52,40 @@
     // Tous les caractères imprimables ASCII (32 à 126)
     const chars = Array.from({ length: 95 }, (_, i) => String.fromCharCode(i + 32)).join("");
 
-    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-      video.srcObject = stream;
-      video.play();
-      draw();
+    // Dimensions adaptées
+    const mobileWidth = 80;
+    const mobileHeight = 60;
+    const desktopWidth = 140;
+    const desktopHeight = 100;
+
+    startBtn.addEventListener("click", async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.play();
+        draw();
+        startBtn.style.display = "none"; // cacher le bouton après démarrage
+      } catch (err) {
+        alert("Impossible d'accéder à la caméra : " + err);
+      }
     });
 
     function draw() {
-      const width = 140;   // largeur ASCII
-      const height = 100;  // hauteur ASCII
+      const width = isMobile ? mobileWidth : desktopWidth;
+      const height = isMobile ? mobileHeight : desktopHeight;
 
       canvas.width = width;
       canvas.height = height;
 
-      // Appliquer les filtres uniquement si mobile
+      // Appliquer des filtres uniquement sur mobile
       if(isMobile){
-        ctx.filter = "brightness(0.5) contrast(2) saturate(0)";
+        ctx.filter = "brightness(0.5) contrast(2) saturate(0)"; // sans blur
       } else {
-        ctx.filter = "none"; // pas de filtre sur desktop
+        ctx.filter = "none";
       }
 
       ctx.drawImage(video, 0, 0, width, height);
-      
+
       const imageData = ctx.getImageData(0, 0, width, height);
       let asciiStr = "";
 
@@ -76,7 +97,6 @@
           const b = imageData.data[offset + 2];
           const avg = (r + g + b) / 3;
 
-          // index proportionnel à la luminosité
           const charIndex = Math.floor((avg / 255) * (chars.length - 1));
           asciiStr += chars[charIndex];
         }
