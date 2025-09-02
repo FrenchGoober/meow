@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Webcam ASCII Full</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    pre {
+      color: white;
+      font-family: monospace;
+      white-space: pre;
+      line-height: 1em;
+      font-size: 0.9vw; /* s'adapte à l'écran */
+      text-align: center;
+    }
+    video, canvas {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas"></canvas>
+  <pre id="ascii"></pre>
+
+  <script>
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const asciiEl = document.getElementById("ascii");
+
+    // Tous les caractères imprimables ASCII (32 à 126)
+    const chars = Array.from({ length: 95 }, (_, i) => String.fromCharCode(i + 32)).join("");
+
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+      video.srcObject = stream;
+      video.play();
+      draw();
+    });
+
+    function draw() {
+      const width = 140;   // largeur ASCII
+      const height = 100;  // hauteur ASCII
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(video, 0, 0, width, height);
+      
+      const imageData = ctx.getImageData(0, 0, width, height);
+      let asciiStr = "";
+
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const offset = (y * width + x) * 4;
+          const r = imageData.data[offset];
+          const g = imageData.data[offset + 1];
+          const b = imageData.data[offset + 2];
+          const avg = (r + g + b) / 3;
+
+          // index proportionnel à la luminosité
+          const charIndex = Math.floor((avg / 255) * (chars.length - 1));
+          asciiStr += chars[charIndex];
+        }
+        asciiStr += "\n";
+      }
+
+      asciiEl.textContent = asciiStr;
+      requestAnimationFrame(draw);
+    }
+  </script>
+</body>
+</html>
