@@ -37,6 +37,9 @@
     const ctx = canvas.getContext("2d");
     const asciiEl = document.getElementById("ascii");
 
+    // Détection mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
     // Tous les caractères imprimables ASCII (32 à 126)
     const chars = Array.from({ length: 95 }, (_, i) => String.fromCharCode(i + 32)).join("");
 
@@ -52,6 +55,14 @@
 
       canvas.width = width;
       canvas.height = height;
+
+      // Appliquer les filtres uniquement si mobile
+      if(isMobile){
+        ctx.filter = "brightness(0.5) contrast(2) saturate(0) blur(0px)";
+      } else {
+        ctx.filter = "none"; // pas de filtre sur desktop
+      }
+
       ctx.drawImage(video, 0, 0, width, height);
       
       const imageData = ctx.getImageData(0, 0, width, height);
