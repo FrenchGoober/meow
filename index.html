@@ -49,14 +49,6 @@
     // Détection mobile
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-    if(isMobile) {
-      console.log("Utilisateur sur mobile");
-      // Appliquer le filtre CSS directement sur le video
-      video.style.filter = "brightness(0.5) contrast(2) saturate(0) blur(0px)";
-    } else {
-      console.log("Utilisateur sur PC");
-    }
-
     // Tous les caractères imprimables ASCII (32 à 126)
     const chars = Array.from({ length: 95 }, (_, i) => String.fromCharCode(i + 32)).join("");
 
@@ -85,7 +77,12 @@
       canvas.width = width;
       canvas.height = height;
 
-      // Ne pas appliquer ctx.filter, seulement CSS sur video
+      // Appliquer des filtres uniquement sur mobile
+      if(isMobile){
+        ctx.filter = "brightness(0.5) contrast(2) saturate(0)"; // sans blur
+      } else {
+        ctx.filter = "none";
+      }
 
       ctx.drawImage(video, 0, 0, width, height);
 
