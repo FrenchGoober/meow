@@ -37,11 +37,10 @@
     const ctx = canvas.getContext("2d");
     const asciiEl = document.getElementById("ascii");
 
-    // Tableau explicite de caractères : A–Z + 0–9
     const chars = [
       "A","B","C","D","E","F","G","H","I","J","K","L","M",
       "N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
-      "0","1","2","3","4","5","6","7","8","9"
+      "0","1","2","3","4","5","6","7","8","9","+","-","/",
     ];
 
     navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
@@ -69,8 +68,13 @@
           const b = imageData.data[offset + 2];
           const avg = (r + g + b) / 3;
 
-          const charIndex = Math.floor((avg / 255) * (chars.length - 1));
-          asciiStr += chars[charIndex];
+          // seuil : pixels sombres deviennent espace
+          if(avg < 128) {
+            asciiStr += " ";
+          } else {
+            const charIndex = Math.floor(Math.random() * chars.length);
+            asciiStr += chars[charIndex];
+          }
         }
         asciiStr += "\n";
       }
