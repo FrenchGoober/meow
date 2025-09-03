@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Webcam ASCII Full</title>
+  <title>Ascii webcam thingy</title>
   <style>
     body {
       margin: 0;
@@ -18,7 +18,7 @@
       font-family: monospace;
       white-space: pre;
       line-height: 1em;
-      font-size: 0.9vw; /* s'adapte à l'écran */
+      font-size: 0.9vw;
       text-align: center;
     }
     video, canvas {
@@ -37,8 +37,11 @@
     const ctx = canvas.getContext("2d");
     const asciiEl = document.getElementById("ascii");
 
-    // Tous les caractères imprimables ASCII (32 à 126)
-    const chars = Array.from({ length: 95 }, (_, i) => String.fromCharCode(i + 32)).join("");
+    // Tous les caractères imprimables sauf "~", "]", "*", "'", et minuscules
+    const chars = Array.from({ length: 95 }, (_, i) => String.fromCharCode(i + 32))
+                       .filter(c => !["~", "]", "*", "'"].includes(c)) // exclusions spécifiques
+                       .filter(c => !(c >= "a" && c <= "z"))            // exclure minuscules
+                       .join("");
 
     navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
       video.srcObject = stream;
@@ -47,8 +50,8 @@
     });
 
     function draw() {
-      const width = 140;   // largeur ASCII
-      const height = 100;  // hauteur ASCII
+      const width = 140;   
+      const height = 100;  
 
       canvas.width = width;
       canvas.height = height;
@@ -65,7 +68,6 @@
           const b = imageData.data[offset + 2];
           const avg = (r + g + b) / 3;
 
-          // index proportionnel à la luminosité
           const charIndex = Math.floor((avg / 255) * (chars.length - 1));
           asciiStr += chars[charIndex];
         }
