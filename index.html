@@ -37,11 +37,12 @@
     const ctx = canvas.getContext("2d");
     const asciiEl = document.getElementById("ascii");
 
-    // Tous les caractères imprimables sauf "~", "]", "*", "'", et minuscules
-    const chars = Array.from({ length: 95 }, (_, i) => String.fromCharCode(i + 32))
-                       .filter(c => !["~", "]", "*", "'"].includes(c)) // exclusions spécifiques
-                       .filter(c => !(c >= "a" && c <= "z"))            // exclure minuscules
-                       .join("");
+    // Tableau explicite de caractères : A–Z + 0–9
+    const chars = [
+      "A","B","C","D","E","F","G","H","I","J","K","L","M",
+      "N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+      "0","1","2","3","4","5","6","7","8","9"
+    ];
 
     navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
       video.srcObject = stream;
