@@ -67,8 +67,7 @@
           const g = imageData.data[offset + 1];
           const b = imageData.data[offset + 2];
           const avg = (r + g + b) / 3;
-
-          // seuil : pixels sombres deviennent espace
+          
           if(avg < 128) {
             asciiStr += " ";
           } else {
